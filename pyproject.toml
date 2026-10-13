@@ -1,0 +1,30 @@
+[project]
+name = "convcontract"
+version = "0.1.0"
+description = "Conversation contract layer: rebuild each multi-turn chat turn as a single-turn task, evaluated on the Lost-in-Conversation harness."
+requires-python = ">=3.11"
+dependencies = [
+    "openai>=1.40",
+    "python-dotenv>=1.0",
+    "numpy",
+    "tqdm",
+    # Required by the vendored Microsoft harness (external/lost_in_conversation)
+    "tiktoken",
+    "pandas",
+    "GitPython",
+    "nltk",
+    "sqlparse",
+    "pymongo",
+    "sacrebleu",
+    "anthropic>=1.13.0",
+]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

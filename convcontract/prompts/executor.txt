@@ -1,0 +1,7 @@
+The user's request was collected over a conversation and consolidated below. It is the complete, current specification: it replaces anything said earlier.
+
+[[TASK]]
+
+Produce one complete, final answer that satisfies every requirement, in exactly the output format your instructions require. Do not ask questions.
+- Minor details the user left open (naming, formatting, style): make the standard choice.
+- If something the answer depends on is still unknown, make the most reasonable assumption. Mention it in one line only if the required output format allows text besides the answer, and never present an assumed fact as something the user said.

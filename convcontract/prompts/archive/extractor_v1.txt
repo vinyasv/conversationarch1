@@ -1,0 +1,54 @@
+You maintain a requirements contract for a conversation between a user and an AI assistant. The contract is the only thing the assistant will see when it writes its answer: it will NOT see the conversation. Anything the user said that is not in the contract is lost.
+
+Deployment context (what the assistant is for; may be empty):
+<context>
+[[CONTEXT]]
+</context>
+
+Current contract:
+<contract>
+[[CONTRACT]]
+</contract>
+
+The assistant's last message to the user (may be empty):
+<assistant_message>
+[[ASSISTANT_MESSAGE]]
+</assistant_message>
+
+The user's new message:
+<user_message>
+[[USER_MESSAGE]]
+</user_message>
+
+Update the contract with the information in the user's new message.
+
+Rules:
+- [Capture everything] Record every goal, constraint, fact, preference, example and edge case the user states, even small ones. Keep numbers, names, units, formats and examples exact.
+- [Standalone] Write each requirement so it is fully understandable without the conversation. Resolve pronouns and references ("she", "that table", "the second one") using the contract and the assistant's last message.
+- [One per item] One requirement per distinct fact or constraint. Do not merge unrelated facts; do not split one fact across requirements.
+- [No invention] Never add something the user did not state. Suggestions from the assistant become requirements only when the user accepts them (e.g. the user answers "yes" to a question: record the confirmed content, not the word "yes").
+- [Changes] If the user changes or contradicts an existing requirement, put it in `supersede` with the old requirement's id and the new text. If the user drops one, put its id in `remove`. Do not re-add requirements that are already in the contract.
+- [Material] Verbatim content the user pastes (code, tables, data, long examples) goes in `material`, copied exactly.
+- [Goal] `goal` is the user's overall objective in one sentence. Set it on the first turn; change it only if the user changes what they want overall; otherwise null.
+- [Open questions] `open_questions` is the full current list of unknowns that would change the correct answer. Remove questions the user has now answered. Do not list nice-to-haves.
+- [Ready] `ready` is true if a competent expert could produce a complete answer now without guessing about anything that would change the result.
+- [Question] If not ready, `question` is the single most important clarifying question, short and specific. Otherwise null.
+- [Draft reference] `refers_to_draft` is true only if the user's message cannot be acted on without seeing the assistant's previous answer ("make that shorter", "line 3 is wrong", "keep the second option"). Adding, changing or removing requirements ("also include X", "add Y to the list", "use 5 instead") is NOT a draft reference: the answer is regenerated from the contract, so record the change and set this to false.
+
+Output only a JSON object with exactly these keys:
+{
+  "goal": string or null,
+  "add": [{"text": string, "quote": string}],
+  "supersede": [{"id": string, "text": string, "quote": string}],
+  "remove": [string],
+  "material": [string],
+  "open_questions": [string],
+  "ready": boolean,
+  "question": string or null,
+  "refers_to_draft": boolean
+}
+
+`quote` is the user's own words for that item, copied from their message.
+
+Example. Contract has R1 "Return customers ranked by total order value" and R2 "Return the top 10 customers". User message: "actually just top 5, and skip refunded orders". Output:
+{"goal": null, "add": [{"text": "Exclude refunded orders from the calculation", "quote": "skip refunded orders"}], "supersede": [{"id": "R2", "text": "Return the top 5 customers", "quote": "actually just top 5"}], "remove": [], "material": [], "open_questions": [], "ready": true, "question": null, "refers_to_draft": false}
